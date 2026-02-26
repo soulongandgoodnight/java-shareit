@@ -63,7 +63,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> search(String text) {
-        if (text == null || text.trim().isEmpty()) {
+        if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }
 
@@ -72,9 +72,8 @@ public class ItemServiceImpl implements ItemService {
         return items.values().stream()
                 .filter(Item::getAvailable)
                 .filter(item ->
-                        (item.getName() != null && item.getName().toLowerCase().contains(lowerText)) ||
-                                (item.getDescription() != null && item.getDescription().toLowerCase()
-                                        .contains(lowerText))
+                        (item.getName().toLowerCase().contains(lowerText)) ||
+                                (item.getDescription().toLowerCase().contains(lowerText))
                 )
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
