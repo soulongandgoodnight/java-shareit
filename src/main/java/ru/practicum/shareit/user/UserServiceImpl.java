@@ -14,24 +14,32 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final Map<Long, User> users = new ConcurrentHashMap<>();
+    private final UserRepository userRepository;
     private final UserMapper mapper;
-    private long idCounter = 1;
 
     @Override
     public UserDto create(UserDto userDto) {
-        validateEmailUnique(userDto.getEmail(), null);
+        if (userRepository.existsByEmailIgnoreCase(userDto.getEmail())) {
+            throw new ConflictException("Email " + userDto.getEmail() + " уже используется");
+        }
+
         User user = mapper.toEntity(userDto);
-        user.setId(idCounter++);
-        users.put(user.getId(), user);
+        user = userRepository.save(user);
         return mapper.toDto(user);
     }
 
     @Override
     public UserDto update(Long id, UserDto userDto) {
         User user = getUserEntityById(id);
-        validateEmailUnique(userDto.getEmail(), id);
-        mapper.updateFromDto(user,userDto);
+
+        if (userDto.getEmail() != null && !userDto.getEmail().equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.existsByEmailIgnoreCase(userDto.getEmail())) {
+                throw new ConflictException("Email " + userDto.getEmail() + " уже используется");
+            }
+        }
+
+        mapper.updateFromDto(user, userDto);
+        user = userRepository.save(user);
         return mapper.toDto(user);
     }
 
@@ -42,35 +50,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAll() {
-        return users.values().stream()
+        return userRepository.findAll().stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void delete(Long id) {
-        if (!users.containsKey(id)) {
+        if (!userRepository.existsById(id)) {
             throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
-        users.remove(id);
+        userRepository.deleteById(id);
     }
 
     @Override
     public User getUserEntityById(Long id) {
-        return users.values().stream()
-                .filter(u -> u.getId().equals(id))
-                .findFirst()
+        return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
-    }
-
-    private void validateEmailUnique(String email, Long excludeId) {
-        if (email == null || email.trim().isEmpty()) {
-            return;
-        }
-        boolean exists = users.values().stream()
-                .anyMatch(u -> u.getEmail().equalsIgnoreCase(email) && !u.getId().equals(excludeId));
-        if (exists) {
-            throw new ConflictException("Email " + email + " уже используется");
-        }
     }
 }

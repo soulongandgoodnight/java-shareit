@@ -23,12 +23,12 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserDto getById(@PathVariable Long id, @RequestBody UserDto userDto) {
+    public UserDto update(@PathVariable Long id, @RequestBody UserDto userDto) {
         return userService.update(id, userDto);
     }
 
     @GetMapping("/{id}")
-    public UserDto update(@PathVariable Long id) {
+    public UserDto getById(@PathVariable Long id) {
         return userService.getById(id);
     }
 
