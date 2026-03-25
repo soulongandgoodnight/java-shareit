@@ -9,6 +9,7 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
@@ -32,10 +33,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto create(ItemDto itemDto, Long userId) {
+    public ItemDto create(ItemRequestDto itemRequest, Long userId) {
         User owner = userService.getUserEntityById(userId);
 
-        Item item = mapper.toEntity(itemDto);
+        Item item = mapper.toEntity(itemRequest);
         item.setOwner(owner);
 
         item = itemRepository.save(item);
@@ -45,15 +46,17 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto update(Long itemId, ItemDto itemDto, Long userId) {
-        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
+    public ItemDto update(Long itemId, ItemRequestDto itemRequest, Long userId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
         if (!item.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Только владелец может редактировать вещь");
         }
 
-        mapper.updateFromDto(item, itemDto);
+        mapper.updateFromDto(item, itemRequest);
         item = itemRepository.save(item);
+
         return mapper.toDto(item);
     }
 

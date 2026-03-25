@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -14,6 +15,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,8 @@ public class BookingServiceImpl implements BookingService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final BookingMapper mapper;
+
+    private static final Sort SORT_NEWEST_FIRST = Sort.by(Sort.Direction.DESC, "start");
 
     @Override
     @Transactional
@@ -97,23 +101,76 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByUser(Long userId) {
-
+    public List<BookingDto> getAllByUser(Long userId, String state) {
         userService.getUserEntityById(userId);
 
-        return bookingRepository.findAll().stream()
-                .filter(b -> b.getBooker().getId().equals(userId))
+        LocalDateTime now = LocalDateTime.now();
+        List<Booking> bookings;
+
+        switch (state.toUpperCase()) {
+            case "ALL":
+                bookings = bookingRepository.findByBookerId(userId, SORT_NEWEST_FIRST);
+                break;
+            case "CURRENT":
+                bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfter(userId, now, now, SORT_NEWEST_FIRST);
+                break;
+            case "PAST":
+                bookings = bookingRepository.findByBookerIdAndEndBefore(userId, now, SORT_NEWEST_FIRST);
+                break;
+            case "FUTURE":
+                bookings = bookingRepository.findByBookerIdAndStartAfter(userId, now, SORT_NEWEST_FIRST);
+                break;
+            case "WAITING":
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.WAITING, SORT_NEWEST_FIRST);
+                break;
+            case "REJECTED":
+                bookings = bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.REJECTED, SORT_NEWEST_FIRST);
+                break;
+            default:
+                throw new ValidationException("Unknown state: " + state);
+        }
+
+        return bookings.stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<BookingDto> getAllByOwner(Long ownerId) {
-
+    public List<BookingDto> getAllByOwner(Long ownerId, String state) {
         userService.getUserEntityById(ownerId);
 
-        return bookingRepository.findAll().stream()
-                .filter(b -> b.getItem().getOwner().getId().equals(ownerId))
+        LocalDateTime now = LocalDateTime.now();
+        List<Booking> bookings;
+
+        switch (state.toUpperCase()) {
+            case "ALL":
+                bookings = bookingRepository.findByItemOwnerId(ownerId, SORT_NEWEST_FIRST);
+                break;
+            case "CURRENT":
+                bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfter(
+                        ownerId, now, now, SORT_NEWEST_FIRST);
+                break;
+            case "PAST":
+                bookings = bookingRepository.findByItemOwnerIdAndEndBefore(
+                        ownerId, now, SORT_NEWEST_FIRST);
+                break;
+            case "FUTURE":
+                bookings = bookingRepository.findByItemOwnerIdAndStartAfter(
+                        ownerId, now, SORT_NEWEST_FIRST);
+                break;
+            case "WAITING":
+                bookings = bookingRepository.findByItemOwnerIdAndStatus(
+                        ownerId, BookingStatus.WAITING, SORT_NEWEST_FIRST);
+                break;
+            case "REJECTED":
+                bookings = bookingRepository.findByItemOwnerIdAndStatus(
+                        ownerId, BookingStatus.REJECTED, SORT_NEWEST_FIRST);
+                break;
+            default:
+                throw new ValidationException("Unknown state: " + state);
+        }
+
+        return bookings.stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
