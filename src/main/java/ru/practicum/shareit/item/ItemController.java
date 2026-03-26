@@ -2,15 +2,15 @@ package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -22,20 +22,21 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader(USER_ID_HEADER) Long userId,
-                          @Valid @RequestBody ItemDto itemDto) {
-        return itemService.create(itemDto, userId);
+                          @Valid @RequestBody ItemRequestDto itemRequest) {
+        return itemService.create(itemRequest, userId);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader(USER_ID_HEADER) Long userId,
                           @PathVariable Long itemId,
-                          @RequestBody ItemDto itemDto) {
-        return itemService.update(itemId, itemDto, userId);
+                          @RequestBody ItemRequestDto itemRequest) {
+        return itemService.update(itemId, itemRequest, userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getById(@PathVariable Long itemId) {
-        return itemService.getById(itemId);
+    public ItemDto getById(@RequestHeader(USER_ID_HEADER) Long userId,
+                           @PathVariable Long itemId) {
+        return itemService.getById(itemId, userId);
     }
 
     @GetMapping
@@ -46,5 +47,13 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> search(@RequestParam("text") String text) {
         return itemService.search(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommentDto createComment(@RequestHeader(USER_ID_HEADER) Long userId,
+                                    @PathVariable Long itemId,
+                                    @Valid @RequestBody CommentDto commentDto) {
+        return itemService.createComment(itemId, userId, commentDto);
     }
 }
