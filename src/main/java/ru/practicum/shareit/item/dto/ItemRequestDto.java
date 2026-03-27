@@ -15,4 +15,6 @@ public class ItemRequestDto {
 
     @NotNull(message = "Доступность должна быть указана")
     private Boolean available;
+
+    private Long requestId;
 }

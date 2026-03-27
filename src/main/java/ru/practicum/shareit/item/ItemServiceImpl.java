@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Comment;
@@ -116,7 +117,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public CommentDto createComment(Long itemId, Long userId, CommentDto commentDto) {
+    public CommentDto createComment(Long itemId, Long userId, CommentRequestDto commentRequestDto) {
 
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
@@ -133,7 +134,7 @@ public class ItemServiceImpl implements ItemService {
         }
 
         Comment comment = new Comment();
-        comment.setText(commentDto.getText());
+        comment.setText(commentRequestDto.getText());
         comment.setItem(item);
         comment.setAuthor(author);
         comment.setCreated(LocalDateTime.now());

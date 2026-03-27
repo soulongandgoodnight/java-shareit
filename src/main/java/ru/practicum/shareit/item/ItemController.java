@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 
@@ -53,7 +54,7 @@ public class ItemController {
     @ResponseStatus(HttpStatus.CREATED)
     public CommentDto createComment(@RequestHeader(USER_ID_HEADER) Long userId,
                                     @PathVariable Long itemId,
-                                    @Valid @RequestBody CommentDto commentDto) {
-        return itemService.createComment(itemId, userId, commentDto);
+                                    @Valid @RequestBody CommentRequestDto commentRequestDto) {
+        return itemService.createComment(itemId, userId, commentRequestDto);
     }
 }

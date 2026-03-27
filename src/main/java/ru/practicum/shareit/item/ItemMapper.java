@@ -22,6 +22,9 @@ public class ItemMapper {
         item.setName(request.getName());
         item.setDescription(request.getDescription());
         item.setAvailable(request.getAvailable());
+        if (request.getRequestId() != null) {
+            item.setRequestId(request.getRequestId());
+        }
         return item;
     }
 

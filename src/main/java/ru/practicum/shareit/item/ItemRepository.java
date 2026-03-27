@@ -16,4 +16,8 @@ WHERE (UPPER(i.name) LIKE UPPER(CONCAT('%', ?1, '%'))
    AND i.available = true
 """)
     List<Item> searchAvailable(String text);
+
+    List<Item> findByRequestId(Long requestId);
+
+    List<Item> findByRequestIdIn(List<Long> requestIds);
 }

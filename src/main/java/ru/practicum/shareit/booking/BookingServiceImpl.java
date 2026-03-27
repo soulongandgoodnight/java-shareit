@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -101,29 +102,29 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByUser(Long userId, String state) {
+    public List<BookingDto> getAllByUser(Long userId, BookingState state) {
         userService.getUserEntityById(userId);
 
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings;
 
-        switch (state.toUpperCase()) {
-            case "ALL":
+        switch (state) {
+            case ALL:
                 bookings = bookingRepository.findByBookerId(userId, SORT_NEWEST_FIRST);
                 break;
-            case "CURRENT":
+            case CURRENT:
                 bookings = bookingRepository.findByBookerIdAndStartBeforeAndEndAfter(userId, now, now, SORT_NEWEST_FIRST);
                 break;
-            case "PAST":
+            case PAST:
                 bookings = bookingRepository.findByBookerIdAndEndBefore(userId, now, SORT_NEWEST_FIRST);
                 break;
-            case "FUTURE":
+            case FUTURE:
                 bookings = bookingRepository.findByBookerIdAndStartAfter(userId, now, SORT_NEWEST_FIRST);
                 break;
-            case "WAITING":
+            case WAITING:
                 bookings = bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.WAITING, SORT_NEWEST_FIRST);
                 break;
-            case "REJECTED":
+            case REJECTED:
                 bookings = bookingRepository.findByBookerIdAndStatus(userId, BookingStatus.REJECTED, SORT_NEWEST_FIRST);
                 break;
             default:
@@ -136,35 +137,30 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByOwner(Long ownerId, String state) {
+    public List<BookingDto> getAllByOwner(Long ownerId, BookingState state) {
         userService.getUserEntityById(ownerId);
 
         LocalDateTime now = LocalDateTime.now();
         List<Booking> bookings;
 
-        switch (state.toUpperCase()) {
-            case "ALL":
+        switch (state) {
+            case ALL:
                 bookings = bookingRepository.findByItemOwnerId(ownerId, SORT_NEWEST_FIRST);
                 break;
-            case "CURRENT":
-                bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfter(
-                        ownerId, now, now, SORT_NEWEST_FIRST);
+            case CURRENT:
+                bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfter(ownerId, now, now, SORT_NEWEST_FIRST);
                 break;
-            case "PAST":
-                bookings = bookingRepository.findByItemOwnerIdAndEndBefore(
-                        ownerId, now, SORT_NEWEST_FIRST);
+            case PAST:
+                bookings = bookingRepository.findByItemOwnerIdAndEndBefore(ownerId, now, SORT_NEWEST_FIRST);
                 break;
-            case "FUTURE":
-                bookings = bookingRepository.findByItemOwnerIdAndStartAfter(
-                        ownerId, now, SORT_NEWEST_FIRST);
+            case FUTURE:
+                bookings = bookingRepository.findByItemOwnerIdAndStartAfter(ownerId, now, SORT_NEWEST_FIRST);
                 break;
-            case "WAITING":
-                bookings = bookingRepository.findByItemOwnerIdAndStatus(
-                        ownerId, BookingStatus.WAITING, SORT_NEWEST_FIRST);
+            case WAITING:
+                bookings = bookingRepository.findByItemOwnerIdAndStatus(ownerId, BookingStatus.WAITING, SORT_NEWEST_FIRST);
                 break;
-            case "REJECTED":
-                bookings = bookingRepository.findByItemOwnerIdAndStatus(
-                        ownerId, BookingStatus.REJECTED, SORT_NEWEST_FIRST);
+            case REJECTED:
+                bookings = bookingRepository.findByItemOwnerIdAndStatus(ownerId, BookingStatus.REJECTED, SORT_NEWEST_FIRST);
                 break;
             default:
                 throw new ValidationException("Unknown state: " + state);
