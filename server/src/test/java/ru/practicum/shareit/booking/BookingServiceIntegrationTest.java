@@ -31,6 +31,7 @@ public class BookingServiceIntegrationTest {
     private Long ownerId;
     private Long bookerId;
     private Long itemId;
+    private Long bookingId;
 
     @BeforeEach
     void setUp() {
@@ -54,14 +55,85 @@ public class BookingServiceIntegrationTest {
         booking.setItemId(itemId);
         booking.setStart(LocalDateTime.now().plusDays(1));
         booking.setEnd(LocalDateTime.now().plusDays(2));
-        bookingService.create(bookerId, booking);
+        bookingId = bookingService.create(bookerId, booking).getId();
     }
 
     @Test
-    void getAllByUser_shouldReturnBookerBookings() {
+    void getAllByUser_stateAll_shouldReturnBookings() {
         List<BookingDto> bookings = bookingService.getAllByUser(bookerId, BookingState.ALL);
-
         assertThat(bookings).hasSize(1);
         assertThat(bookings.get(0).getItem().getId()).isEqualTo(itemId);
+    }
+
+    @Test
+    void getAllByUser_stateFuture_shouldReturnBookings() {
+        List<BookingDto> bookings = bookingService.getAllByUser(bookerId, BookingState.FUTURE);
+        assertThat(bookings).hasSize(1);
+    }
+
+    @Test
+    void getAllByUser_statePast_shouldReturnEmpty() {
+        List<BookingDto> bookings = bookingService.getAllByUser(bookerId, BookingState.PAST);
+        assertThat(bookings).isEmpty();
+    }
+
+    @Test
+    void getAllByUser_stateWaiting_shouldReturnBookings() {
+        List<BookingDto> bookings = bookingService.getAllByUser(bookerId, BookingState.WAITING);
+        assertThat(bookings).hasSize(1);
+    }
+
+    @Test
+    void getAllByUser_stateRejected_shouldReturnEmpty() {
+        List<BookingDto> bookings = bookingService.getAllByUser(bookerId, BookingState.REJECTED);
+        assertThat(bookings).isEmpty();
+    }
+
+    @Test
+    void getAllByOwner_stateAll_shouldReturnBookings() {
+        List<BookingDto> bookings = bookingService.getAllByOwner(ownerId, BookingState.ALL);
+        assertThat(bookings).hasSize(1);
+    }
+
+    @Test
+    void getAllByOwner_stateFuture_shouldReturnBookings() {
+        List<BookingDto> bookings = bookingService.getAllByOwner(ownerId, BookingState.FUTURE);
+        assertThat(bookings).hasSize(1);
+    }
+
+    @Test
+    void getAllByOwner_statePast_shouldReturnEmpty() {
+        List<BookingDto> bookings = bookingService.getAllByOwner(ownerId, BookingState.PAST);
+        assertThat(bookings).isEmpty();
+    }
+
+    @Test
+    void getAllByOwner_stateWaiting_shouldReturnBookings() {
+        List<BookingDto> bookings = bookingService.getAllByOwner(ownerId, BookingState.WAITING);
+        assertThat(bookings).hasSize(1);
+    }
+
+    @Test
+    void getAllByOwner_stateRejected_shouldReturnEmpty() {
+        List<BookingDto> bookings = bookingService.getAllByOwner(ownerId, BookingState.REJECTED);
+        assertThat(bookings).isEmpty();
+    }
+
+    @Test
+    void approve_shouldChangeStatusToApproved() {
+        BookingDto approved = bookingService.approve(bookingId, ownerId, true);
+        assertThat(approved.getStatus().name()).isEqualTo("APPROVED");
+    }
+
+    @Test
+    void approve_shouldChangeStatusToRejected() {
+        BookingDto rejected = bookingService.approve(bookingId, ownerId, false);
+        assertThat(rejected.getStatus().name()).isEqualTo("REJECTED");
+    }
+
+    @Test
+    void getById_shouldReturnBooking() {
+        BookingDto booking = bookingService.getById(bookingId, bookerId);
+        assertThat(booking.getId()).isEqualTo(bookingId);
     }
 }

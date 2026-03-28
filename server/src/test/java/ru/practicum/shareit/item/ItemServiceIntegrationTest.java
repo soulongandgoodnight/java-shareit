@@ -24,20 +24,20 @@ public class ItemServiceIntegrationTest {
     private final UserService userService;
 
     private Long userId;
+    private Long itemId;
 
     @BeforeEach
     void setUp() {
         UserDto user = new UserDto();
         user.setName("Test User");
         user.setEmail("test@example.com");
-        UserDto savedUser = userService.create(user);
-        userId = savedUser.getId();
+        userId = userService.create(user).getId();
 
         ItemRequestDto item1 = new ItemRequestDto();
         item1.setName("Дрель");
         item1.setDescription("Мощная дрель");
         item1.setAvailable(true);
-        itemService.create(item1, userId);
+        itemId = itemService.create(item1, userId).getId();
 
         ItemRequestDto item2 = new ItemRequestDto();
         item2.setName("Молоток");
@@ -49,9 +49,40 @@ public class ItemServiceIntegrationTest {
     @Test
     void getAllByOwner_shouldReturnAllOwnerItems() {
         List<ItemDto> items = itemService.getAllByOwner(userId);
-
         assertThat(items).hasSize(2);
         assertThat(items).extracting("name")
                 .containsExactlyInAnyOrder("Дрель", "Молоток");
+    }
+
+    @Test
+    void getById_shouldReturnItem() {
+        ItemDto item = itemService.getById(itemId, userId);
+        assertThat(item.getName()).isEqualTo("Дрель");
+    }
+
+    @Test
+    void search_shouldReturnMatchingItems() {
+        List<ItemDto> items = itemService.search("дрель");
+        assertThat(items).hasSize(1);
+        assertThat(items.get(0).getName()).isEqualTo("Дрель");
+    }
+
+    @Test
+    void search_withEmptyText_shouldReturnEmpty() {
+        List<ItemDto> items = itemService.search("");
+        assertThat(items).isEmpty();
+    }
+
+    @Test
+    void update_shouldUpdateItemFields() {
+        ItemRequestDto update = new ItemRequestDto();
+        update.setName("Дрель обновлённая");
+        update.setDescription("Очень мощная");
+        update.setAvailable(false);
+
+        ItemDto updated = itemService.update(itemId, update, userId);
+
+        assertThat(updated.getName()).isEqualTo("Дрель обновлённая");
+        assertThat(updated.getAvailable()).isFalse();
     }
 }
