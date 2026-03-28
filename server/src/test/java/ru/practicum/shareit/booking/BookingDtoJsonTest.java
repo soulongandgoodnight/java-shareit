@@ -38,14 +38,7 @@ public class BookingDtoJsonTest {
 
     @Test
     void deserialize_shouldReadStatusCorrectly() throws Exception {
-        String content = """
-            {
-                "id": 1,
-                "start": "2025-06-01T12:00:00",
-                "end": "2025-06-02T12:00:00",
-                "status": "APPROVED"
-            }
-            """;
+        String content = "{\"id\": 1, \"start\": \"2025-06-01T12:00:00\", \"end\": \"2025-06-02T12:00:00\", \"status\": \"APPROVED\"}";
 
         BookingDto dto = json.parseObject(content);
 
