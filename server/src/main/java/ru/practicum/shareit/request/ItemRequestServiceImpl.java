@@ -69,7 +69,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequestDto dto = mapper.toDto(request);
 
         List<Item> items = itemRepository.findByRequestId(requestId);
-        dto.setItems(items.stream().map(this::toItemDto).collect(Collectors.toList()));
+        dto.setItems(items.stream().map(ItemRequestServiceImpl::toItemDto).collect(Collectors.toList()));
 
         return dto;
     }
@@ -87,12 +87,12 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return requests.stream().map(req -> {
             ItemRequestDto dto = mapper.toDto(req);
             List<Item> items = itemsByRequest.getOrDefault(req.getId(), List.of());
-            dto.setItems(items.stream().map(this::toItemDto).collect(Collectors.toList()));
+            dto.setItems(items.stream().map(ItemRequestServiceImpl::toItemDto).collect(Collectors.toList()));
             return dto;
         }).collect(Collectors.toList());
     }
 
-    private ItemDto toItemDto(Item item) {
+    private static ItemDto toItemDto(Item item) {
         ItemDto dto = new ItemDto();
         dto.setId(item.getId());
         dto.setName(item.getName());

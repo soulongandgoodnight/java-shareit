@@ -98,6 +98,20 @@ public class BookingControllerTest {
     }
 
     @Test
+    void getAllByUser_whenWrongStatus_shouldReturnBadRequest() throws Exception {
+        BookingDto response = new BookingDto();
+        response.setId(1L);
+
+        when(bookingService.getAllByUser(eq(1L), eq(BookingState.ALL)))
+                .thenReturn(List.of(response));
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("state", "Wrong state"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void getAllByOwner_shouldReturnList() throws Exception {
         BookingDto response = new BookingDto();
         response.setId(1L);

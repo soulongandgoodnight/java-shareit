@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
@@ -15,6 +18,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Transactional
@@ -24,6 +28,7 @@ public class ItemServiceIntegrationTest {
 
     private final ItemService itemService;
     private final UserService userService;
+    private final BookingService bookingService;
 
     private Long userId;
     private Long itemId;
@@ -86,5 +91,14 @@ public class ItemServiceIntegrationTest {
 
         assertThat(updated.getName()).isEqualTo("Дрель обновлённая");
         assertThat(updated.getAvailable()).isFalse();
+    }
+
+    @Test
+    void createComment_shouldCreateComment() {
+        var dto = new CommentRequestDto();
+        var commentText = "Хорошая доставка";
+        dto.setText(commentText);
+        assertThatThrownBy(() -> itemService.createComment(itemId, userId, dto))
+                .isInstanceOf(ValidationException.class);
     }
 }

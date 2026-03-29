@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -75,6 +76,48 @@ public class UserServiceIntegrationTest {
         userService.delete(id);
 
         assertThatThrownBy(() -> userService.getById(id))
+                .isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void create_shouldThrowConflictException() {
+        var email = "duplicate@example.com";
+
+        var alice = new UserDto();
+        alice.setName("Alice");
+        alice.setEmail(email);
+
+        var bob = new UserDto();
+        bob.setName("Bob");
+        bob.setEmail(email);
+
+        userService.create(alice);
+        assertThatThrownBy(() -> userService.create(bob))
+                .isInstanceOf(ConflictException.class);
+    }
+
+    @Test
+    void update_whenUserTriesToUseAlreadyUsedEmail_shouldThrowConflictException() {
+        var aliceEmail = "alice@example.com";
+        var bobEmail = "bob@example.com";
+        var alice = new UserDto();
+        alice.setName("Alice");
+        alice.setEmail(aliceEmail);
+
+        var bob = new UserDto();
+        bob.setName("Bob");
+        bob.setEmail(bobEmail);
+
+        userService.create(alice);
+        var id = userService.create(bob).getId();
+        bob.setEmail(aliceEmail);
+        assertThatThrownBy(() -> userService.update(id, bob))
+                .isInstanceOf(ConflictException.class);
+    }
+
+    @Test
+    void delete_whenUserDoesNotExist_shouldThrowNotFoundException() {
+        assertThatThrownBy(() -> userService.delete(-1L))
                 .isInstanceOf(NotFoundException.class);
     }
 }
