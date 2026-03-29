@@ -10,11 +10,5 @@ public class ItemRequestDto {
     private String description;
     private LocalDateTime created;
     private List<ItemDto> items;
-
-    @Data
-    public static class ItemDto {
-        private Long id;
-        private String name;
-        private Long ownerId;
-    }
 }
+

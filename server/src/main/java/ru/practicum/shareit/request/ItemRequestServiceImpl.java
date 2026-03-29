@@ -7,11 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -92,8 +92,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         }).collect(Collectors.toList());
     }
 
-    private ItemRequestDto.ItemDto toItemDto(Item item) {
-        ItemRequestDto.ItemDto dto = new ItemRequestDto.ItemDto();
+    private ItemDto toItemDto(Item item) {
+        ItemDto dto = new ItemDto();
         dto.setId(item.getId());
         dto.setName(item.getName());
         dto.setOwnerId(item.getOwner().getId());
