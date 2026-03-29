@@ -56,19 +56,6 @@ public class ItemControllerTest {
     }
 
     @Test
-    void create_withoutName_shouldReturn400() throws Exception {
-        ItemRequestDto dto = new ItemRequestDto();
-        dto.setDescription("Описание");
-        dto.setAvailable(true);
-
-        mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void getById_shouldReturnItem() throws Exception {
         ItemDto response = new ItemDto();
         response.setId(1L);

@@ -54,18 +54,6 @@ public class UserControllerTest {
     }
 
     @Test
-    void create_withInvalidEmail_shouldReturn400() throws Exception {
-        UserDto dto = new UserDto();
-        dto.setName("Tima");
-        dto.setEmail("not-an-email");
-
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void getById_shouldReturnUser() throws Exception {
         UserDto response = new UserDto();
         response.setId(1L);

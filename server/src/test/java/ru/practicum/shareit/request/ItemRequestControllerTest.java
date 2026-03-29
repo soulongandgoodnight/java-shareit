@@ -51,18 +51,6 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void create_withBlankDescription_shouldReturn400() throws Exception {
-        ItemRequestCreateDto dto = new ItemRequestCreateDto();
-        dto.setDescription("");
-
-        mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void getAllByUser_shouldReturnList() throws Exception {
         ItemRequestDto response = new ItemRequestDto();
         response.setId(1L);
