@@ -1,0 +1,36 @@
+package ru.practicum.shareit.request.dto;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
+import org.springframework.boot.test.json.JacksonTester;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@JsonTest
+public class ItemRequestCreateDtoJsonTest {
+
+    @Autowired
+    private JacksonTester<ItemRequestCreateDto> json;
+
+    @Test
+    void serialize_shouldContainDescription() throws Exception {
+        ItemRequestCreateDto dto = new ItemRequestCreateDto();
+        dto.setDescription("Нужна дрель");
+
+        var result = json.write(dto);
+
+        assertThat(result).hasJsonPath("$.description");
+        assertThat(result).extractingJsonPathStringValue("$.description")
+                .isEqualTo("Нужна дрель");
+    }
+
+    @Test
+    void deserialize_shouldReadDescription() throws Exception {
+        String content = "{\"description\": \"Нужна дрель\"}";
+
+        ItemRequestCreateDto dto = json.parseObject(content);
+
+        assertThat(dto.getDescription()).isEqualTo("Нужна дрель");
+    }
+}
